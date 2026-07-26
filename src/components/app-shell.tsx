@@ -15,14 +15,13 @@ import {
   LogOut,
   Moon,
   Sun,
-  Crown,
 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/lib/use-auth";
-import { useProfile, isPremiumActive, trialRemainingMs } from "@/lib/profile";
+import { useProfile } from "@/lib/profile";
 import { useTheme } from "@/lib/use-theme";
 import { Button } from "@/components/ui/button";
-import { KIWIFY_CHECKOUT_URL } from "@/lib/billing";
+import { PlanBadge } from "@/components/plan-badge";
 import { cn } from "@/lib/utils";
 
 const NAV = [
@@ -36,34 +35,6 @@ const NAV = [
   { to: "/configuracoes", label: "Configurações", icon: Settings },
 ] as const;
 
-function TrialPill({ ms, premium }: { ms: number; premium: boolean }) {
-  if (premium) {
-    return (
-      <div className="flex items-center gap-1.5 rounded-full bg-primary/10 px-3 py-1 text-xs font-medium text-primary">
-        <Crown className="h-3.5 w-3.5" /> Premium
-      </div>
-    );
-  }
-  const h = Math.floor(ms / 3600_000);
-  const m = Math.floor((ms % 3600_000) / 60_000);
-  return (
-    <a
-      href={KIWIFY_CHECKOUT_URL}
-      target="_blank"
-      rel="noreferrer"
-      className={cn(
-        "flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-medium transition-colors",
-        ms > 0
-          ? "bg-warning/15 text-warning-foreground hover:bg-warning/25"
-          : "bg-destructive/15 text-destructive hover:bg-destructive/25",
-      )}
-    >
-      <Crown className="h-3.5 w-3.5" />
-      {ms > 0 ? `Teste: ${h}h ${m}m` : "Teste expirado"}
-    </a>
-  );
-}
-
 export function AppShell({ children }: { children: ReactNode }) {
   const { user } = useAuth();
   const { data: profile } = useProfile(user?.id);
@@ -71,9 +42,6 @@ export function AppShell({ children }: { children: ReactNode }) {
   const nav = useNavigate();
   const path = useRouterState({ select: (s) => s.location.pathname });
   const qc = useQueryClient();
-
-  const premium = isPremiumActive(profile);
-  const remaining = trialRemainingMs(profile);
 
   // Redirect to onboarding if not completed
   useEffect(() => {
@@ -83,26 +51,18 @@ export function AppShell({ children }: { children: ReactNode }) {
   }, [profile, path, nav]);
 
   // Refresh profile / premium status when the user returns to the tab
-  // (e.g. after completing Kiwify checkout).
   useEffect(() => {
-    const wasPremium = premium;
-    const onFocus = () => {
-      qc.invalidateQueries({ queryKey: ["profile"] });
-    };
+    const onFocus = () => qc.invalidateQueries({ queryKey: ["profile"] });
     const onVisibility = () => {
       if (document.visibilityState === "visible") onFocus();
     };
     window.addEventListener("focus", onFocus);
     document.addEventListener("visibilitychange", onVisibility);
-    // If premium just flipped on, celebrate.
-    if (wasPremium && sessionStorage.getItem("foco_premium_toast") !== "1") {
-      sessionStorage.setItem("foco_premium_toast", "1");
-    }
     return () => {
       window.removeEventListener("focus", onFocus);
       document.removeEventListener("visibilitychange", onVisibility);
     };
-  }, [qc, premium]);
+  }, [qc]);
 
   // Toast when premium activates during a session (e.g. webhook confirmed payment).
   useEffect(() => {
@@ -124,7 +84,6 @@ export function AppShell({ children }: { children: ReactNode }) {
     await supabase.auth.signOut();
     nav({ to: "/auth", replace: true });
   };
-
 
   return (
     <div className="flex min-h-screen bg-background">
@@ -157,22 +116,9 @@ export function AppShell({ children }: { children: ReactNode }) {
             );
           })}
         </nav>
-        {!premium && (
-          <a
-            href={KIWIFY_CHECKOUT_URL}
-            target="_blank"
-            rel="noreferrer"
-            className="mt-4 block rounded-xl bg-gradient-to-br from-primary to-primary/70 p-4 text-primary-foreground shadow-glow transition-transform hover:scale-[1.02]"
-          >
-            <div className="flex items-center gap-2 text-sm font-semibold">
-              <Crown className="h-4 w-4" /> Foco+ Premium
-            </div>
-            <p className="mt-1 text-xs opacity-90">Desbloqueie a IA para organizar toda a sua semana automaticamente.</p>
-            <div className="mt-3 rounded-md bg-white/15 py-1.5 text-center text-xs font-semibold">
-              Assinar por R$ 49,90/mês
-            </div>
-          </a>
-        )}
+        <div className="mt-4">
+          <PlanBadge />
+        </div>
       </aside>
 
       {/* Main */}
@@ -185,7 +131,9 @@ export function AppShell({ children }: { children: ReactNode }) {
             <span className="font-semibold">Foco+</span>
           </div>
           <div className="ml-auto flex items-center gap-2">
-            <TrialPill ms={remaining} premium={premium} />
+            <div className="hidden sm:block">
+              <PlanBadge variant="header" />
+            </div>
             <Button variant="ghost" size="icon" onClick={toggle} aria-label="Alternar tema">
               {theme === "dark" ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
             </Button>
