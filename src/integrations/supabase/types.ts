@@ -14,7 +14,289 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      goals: {
+        Row: {
+          created_at: string
+          current_value: number
+          id: string
+          target_value: number
+          title: string
+          unit: string | null
+          updated_at: string
+          user_id: string
+          week_start: string
+        }
+        Insert: {
+          created_at?: string
+          current_value?: number
+          id?: string
+          target_value?: number
+          title: string
+          unit?: string | null
+          updated_at?: string
+          user_id: string
+          week_start?: string
+        }
+        Update: {
+          created_at?: string
+          current_value?: number
+          id?: string
+          target_value?: number
+          title?: string
+          unit?: string | null
+          updated_at?: string
+          user_id?: string
+          week_start?: string
+        }
+        Relationships: []
+      }
+      habit_logs: {
+        Row: {
+          created_at: string
+          habit_id: string
+          id: string
+          log_date: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          habit_id: string
+          id?: string
+          log_date?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          habit_id?: string
+          id?: string
+          log_date?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "habit_logs_habit_id_fkey"
+            columns: ["habit_id"]
+            isOneToOne: false
+            referencedRelation: "habits"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      habits: {
+        Row: {
+          best_streak: number
+          color: string | null
+          created_at: string
+          frequency: number[] | null
+          icon: string | null
+          id: string
+          name: string
+          streak: number
+          target_per_week: number | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          best_streak?: number
+          color?: string | null
+          created_at?: string
+          frequency?: number[] | null
+          icon?: string | null
+          id?: string
+          name: string
+          streak?: number
+          target_per_week?: number | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          best_streak?: number
+          color?: string | null
+          created_at?: string
+          frequency?: number[] | null
+          icon?: string | null
+          id?: string
+          name?: string
+          streak?: number
+          target_per_week?: number | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      notifications: {
+        Row: {
+          body: string | null
+          created_at: string
+          id: string
+          read_at: string | null
+          scheduled_for: string
+          task_id: string | null
+          title: string
+          user_id: string
+        }
+        Insert: {
+          body?: string | null
+          created_at?: string
+          id?: string
+          read_at?: string | null
+          scheduled_for: string
+          task_id?: string | null
+          title: string
+          user_id: string
+        }
+        Update: {
+          body?: string | null
+          created_at?: string
+          id?: string
+          read_at?: string | null
+          scheduled_for?: string
+          task_id?: string | null
+          title?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "notifications_task_id_fkey"
+            columns: ["task_id"]
+            isOneToOne: false
+            referencedRelation: "tasks"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      profiles: {
+        Row: {
+          available_days: number[] | null
+          avatar_url: string | null
+          created_at: string
+          daily_available_minutes: number | null
+          fixed_commitments: string | null
+          full_name: string | null
+          gym_days: number[] | null
+          habits_text: string | null
+          id: string
+          is_premium: boolean
+          language: string
+          objectives: string | null
+          onboarding_completed: boolean
+          premium_until: string | null
+          sleep_time: string | null
+          theme: string
+          trial_ends_at: string
+          trial_started_at: string
+          updated_at: string
+          wake_time: string | null
+          work_days: number[] | null
+          work_end: string | null
+          work_start: string | null
+        }
+        Insert: {
+          available_days?: number[] | null
+          avatar_url?: string | null
+          created_at?: string
+          daily_available_minutes?: number | null
+          fixed_commitments?: string | null
+          full_name?: string | null
+          gym_days?: number[] | null
+          habits_text?: string | null
+          id: string
+          is_premium?: boolean
+          language?: string
+          objectives?: string | null
+          onboarding_completed?: boolean
+          premium_until?: string | null
+          sleep_time?: string | null
+          theme?: string
+          trial_ends_at?: string
+          trial_started_at?: string
+          updated_at?: string
+          wake_time?: string | null
+          work_days?: number[] | null
+          work_end?: string | null
+          work_start?: string | null
+        }
+        Update: {
+          available_days?: number[] | null
+          avatar_url?: string | null
+          created_at?: string
+          daily_available_minutes?: number | null
+          fixed_commitments?: string | null
+          full_name?: string | null
+          gym_days?: number[] | null
+          habits_text?: string | null
+          id?: string
+          is_premium?: boolean
+          language?: string
+          objectives?: string | null
+          onboarding_completed?: boolean
+          premium_until?: string | null
+          sleep_time?: string | null
+          theme?: string
+          trial_ends_at?: string
+          trial_started_at?: string
+          updated_at?: string
+          wake_time?: string | null
+          work_days?: number[] | null
+          work_end?: string | null
+          work_start?: string | null
+        }
+        Relationships: []
+      }
+      tasks: {
+        Row: {
+          category: string | null
+          completed_at: string | null
+          created_at: string
+          deadline: string | null
+          description: string | null
+          estimated_minutes: number
+          id: string
+          is_fixed: boolean
+          priority: number
+          scheduled_end: string | null
+          scheduled_start: string | null
+          status: string
+          title: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          category?: string | null
+          completed_at?: string | null
+          created_at?: string
+          deadline?: string | null
+          description?: string | null
+          estimated_minutes?: number
+          id?: string
+          is_fixed?: boolean
+          priority?: number
+          scheduled_end?: string | null
+          scheduled_start?: string | null
+          status?: string
+          title: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          category?: string | null
+          completed_at?: string | null
+          created_at?: string
+          deadline?: string | null
+          description?: string | null
+          estimated_minutes?: number
+          id?: string
+          is_fixed?: boolean
+          priority?: number
+          scheduled_end?: string | null
+          scheduled_start?: string | null
+          status?: string
+          title?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
