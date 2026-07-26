@@ -15,6 +15,7 @@ export type Profile = {
   work_end: string | null;
   available_days: number[] | null;
   gym_days: number[] | null;
+  gym_time: string | null;
   daily_available_minutes: number | null;
   objectives: string | null;
   habits_text: string | null;
@@ -23,6 +24,8 @@ export type Profile = {
   trial_ends_at: string;
   is_premium: boolean;
   premium_until: string | null;
+  notifications_enabled: boolean;
+  created_at: string;
 };
 
 export function useProfile(userId: string | undefined) {
@@ -34,13 +37,23 @@ export function useProfile(userId: string | undefined) {
       if (error) throw error;
       return data as Profile | null;
     },
+    refetchOnWindowFocus: true,
+    staleTime: 30_000,
   });
 }
 
+export type PlanStatus = "premium" | "trial" | "free";
+
+export function planStatus(p: Pick<Profile, "is_premium" | "trial_ends_at" | "premium_until"> | null | undefined): PlanStatus {
+  if (!p) return "free";
+  if (p.is_premium && (!p.premium_until || new Date(p.premium_until) > new Date())) return "premium";
+  if (new Date(p.trial_ends_at) > new Date()) return "trial";
+  return "free";
+}
+
 export function isPremiumActive(p: Pick<Profile, "is_premium" | "trial_ends_at" | "premium_until"> | null | undefined) {
-  if (!p) return false;
-  if (p.is_premium && p.premium_until && new Date(p.premium_until) > new Date()) return true;
-  return new Date(p.trial_ends_at) > new Date();
+  const s = planStatus(p);
+  return s === "premium" || s === "trial";
 }
 
 export function trialRemainingMs(p: Pick<Profile, "trial_ends_at"> | null | undefined) {
