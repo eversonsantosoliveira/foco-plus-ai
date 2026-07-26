@@ -2,6 +2,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useAuth } from "@/lib/use-auth";
 import { useProfile, isPremiumActive, trialRemainingMs } from "@/lib/profile";
 import { Button } from "@/components/ui/button";
+import { BackButton } from "@/components/back-button";
 import { KIWIFY_CHECKOUT_URL, PREMIUM_PRICE_LABEL } from "@/lib/billing";
 import { Crown, Check } from "lucide-react";
 
@@ -21,6 +22,7 @@ function Perfil() {
   return (
     <div className="mx-auto max-w-3xl space-y-6">
       <div>
+        <div className="mb-1 flex items-center gap-3"><BackButton fallback="/dashboard" /></div>
         <h1 className="text-3xl font-semibold tracking-tight">Perfil</h1>
         <p className="text-muted-foreground">Sua conta e assinatura.</p>
       </div>

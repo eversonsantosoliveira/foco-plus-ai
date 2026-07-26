@@ -4,6 +4,7 @@ import { useProfile } from "@/lib/profile";
 import { supabase } from "@/integrations/supabase/client";
 import { useTheme } from "@/lib/use-theme";
 import { Button } from "@/components/ui/button";
+import { BackButton } from "@/components/back-button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
@@ -70,6 +71,7 @@ function Config() {
   return (
     <div className="mx-auto max-w-3xl space-y-6">
       <div>
+        <div className="mb-1 flex items-center gap-3"><BackButton fallback="/dashboard" /></div>
         <h1 className="text-3xl font-semibold tracking-tight">Configurações</h1>
         <p className="text-muted-foreground">Personalize a experiência.</p>
       </div>
