@@ -15,7 +15,8 @@ export function useRealtime(
   useEffect(() => {
     if (!userId) return;
     const channel = supabase
-      .channel(`rt-${table}-${userId}`)
+      .channel(`rt-${table}-${userId}-${Math.random().toString(36).slice(2)}`);
+    channel
       .on(
         "postgres_changes",
         { event: "*", schema: "public", table, filter: `user_id=eq.${userId}` },
