@@ -6,8 +6,10 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
+import { BackButton } from "@/components/back-button";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
+
 
 export const Route = createFileRoute("/_authenticated/onboarding")({
   head: () => ({ meta: [{ title: "Vamos começar — Foco+" }] }),
@@ -167,13 +169,18 @@ function Onboarding() {
   const isLast = step === steps.length - 1;
 
   return (
-    <div className="mx-auto max-w-lg py-8">
+    <div className="mx-auto max-w-lg py-8 animate-fade-in">
+      <div className="mb-4 flex items-center gap-3">
+        <BackButton fallback="/dashboard" />
+        <span className="text-sm text-muted-foreground">Configuração inicial</span>
+      </div>
       <div className="mb-6 flex items-center gap-2">
         {steps.map((_, i) => (
-          <div key={i} className={cn("h-1.5 flex-1 rounded-full", i <= step ? "bg-primary" : "bg-muted")} />
+          <div key={i} className={cn("h-1.5 flex-1 rounded-full transition-colors", i <= step ? "bg-primary" : "bg-muted")} />
         ))}
       </div>
       <div className="card-elevated p-8">
+
         <div className="text-xs font-medium text-primary">Passo {step + 1} de {steps.length}</div>
         <h1 className="mt-2 text-2xl font-semibold tracking-tight">{current.title}</h1>
         <div className="mt-6">{current.body}</div>

@@ -4,6 +4,7 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/lib/use-auth";
 import { Button } from "@/components/ui/button";
+import { BackButton } from "@/components/back-button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
@@ -75,7 +76,8 @@ function Habitos() {
     <div className="mx-auto max-w-4xl space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-semibold tracking-tight">Hábitos</h1>
+          <div className="mb-1 flex items-center gap-3"><BackButton fallback="/dashboard" /></div>
+        <h1 className="text-3xl font-semibold tracking-tight">Hábitos</h1>
           <p className="text-muted-foreground">Pequenas ações, grandes mudanças.</p>
         </div>
         <Dialog open={open} onOpenChange={setOpen}>

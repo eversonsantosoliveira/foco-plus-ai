@@ -1,5 +1,8 @@
 import { Link, useRouterState, useNavigate } from "@tanstack/react-router";
 import { useEffect, type ReactNode } from "react";
+import { useQueryClient } from "@tanstack/react-query";
+import { toast } from "sonner";
+
 import {
   LayoutDashboard,
   ListChecks,
@@ -67,6 +70,7 @@ export function AppShell({ children }: { children: ReactNode }) {
   const { theme, toggle } = useTheme();
   const nav = useNavigate();
   const path = useRouterState({ select: (s) => s.location.pathname });
+  const qc = useQueryClient();
 
   const premium = isPremiumActive(profile);
   const remaining = trialRemainingMs(profile);
@@ -78,10 +82,49 @@ export function AppShell({ children }: { children: ReactNode }) {
     }
   }, [profile, path, nav]);
 
+  // Refresh profile / premium status when the user returns to the tab
+  // (e.g. after completing Kiwify checkout).
+  useEffect(() => {
+    const wasPremium = premium;
+    const onFocus = () => {
+      qc.invalidateQueries({ queryKey: ["profile"] });
+    };
+    const onVisibility = () => {
+      if (document.visibilityState === "visible") onFocus();
+    };
+    window.addEventListener("focus", onFocus);
+    document.addEventListener("visibilitychange", onVisibility);
+    // If premium just flipped on, celebrate.
+    if (wasPremium && sessionStorage.getItem("foco_premium_toast") !== "1") {
+      sessionStorage.setItem("foco_premium_toast", "1");
+    }
+    return () => {
+      window.removeEventListener("focus", onFocus);
+      document.removeEventListener("visibilitychange", onVisibility);
+    };
+  }, [qc, premium]);
+
+  // Toast when premium activates during a session (e.g. webhook confirmed payment).
+  useEffect(() => {
+    if (!profile) return;
+    const key = `foco_premium_ack_${profile.id}`;
+    const wasAck = localStorage.getItem(key) === "1";
+    if (profile.is_premium && !wasAck) {
+      localStorage.setItem(key, "1");
+      toast.success("🎉 Bem-vindo ao Foco+ Premium!");
+    }
+    if (!profile.is_premium && wasAck) {
+      localStorage.removeItem(key);
+    }
+  }, [profile]);
+
   const handleSignOut = async () => {
+    await qc.cancelQueries();
+    qc.clear();
     await supabase.auth.signOut();
     nav({ to: "/auth", replace: true });
   };
+
 
   return (
     <div className="flex min-h-screen bg-background">

@@ -1,4 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
+import { BackButton } from "@/components/back-button";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/lib/use-auth";
@@ -38,6 +39,7 @@ function Relatorios() {
   return (
     <div className="mx-auto max-w-5xl space-y-6">
       <div>
+        <div className="mb-1 flex items-center gap-3"><BackButton fallback="/dashboard" /></div>
         <h1 className="text-3xl font-semibold tracking-tight">Relatórios</h1>
         <p className="text-muted-foreground">Sua produtividade em números.</p>
       </div>

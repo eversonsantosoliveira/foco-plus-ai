@@ -4,6 +4,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { BackButton } from "@/components/back-button";
 import { toast } from "sonner";
 import { Sparkles } from "lucide-react";
 
@@ -17,6 +18,19 @@ export const Route = createFileRoute("/auth")({
   component: AuthPage,
 });
 
+async function routeAfterLogin(userId: string, nav: ReturnType<typeof useNavigate>) {
+  const { data } = await supabase
+    .from("profiles")
+    .select("onboarding_completed")
+    .eq("id", userId)
+    .maybeSingle();
+  if (data?.onboarding_completed) {
+    nav({ to: "/dashboard", replace: true });
+  } else {
+    nav({ to: "/onboarding", replace: true });
+  }
+}
+
 function AuthPage() {
   const nav = useNavigate();
   const [mode, setMode] = useState<"signin" | "signup">("signup");
@@ -27,7 +41,7 @@ function AuthPage() {
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data }) => {
-      if (data.session) nav({ to: "/dashboard", replace: true });
+      if (data.session?.user) routeAfterLogin(data.session.user.id, nav);
     });
   }, [nav]);
 
@@ -36,7 +50,7 @@ function AuthPage() {
     setLoading(true);
     try {
       if (mode === "signup") {
-        const { error } = await supabase.auth.signUp({
+        const { data, error } = await supabase.auth.signUp({
           email,
           password,
           options: {
@@ -45,13 +59,22 @@ function AuthPage() {
           },
         });
         if (error) throw error;
-        toast.success("Conta criada! Você tem 24h de acesso Premium grátis 🚀");
+
+        // Auto-confirm is enabled → session is returned. If not, sign in explicitly.
+        let userId = data.session?.user.id ?? data.user?.id;
+        if (!data.session) {
+          const { data: signedIn, error: siErr } = await supabase.auth.signInWithPassword({ email, password });
+          if (siErr) throw siErr;
+          userId = signedIn.user?.id;
+        }
+        toast.success("🎉 Conta criada! 24h Premium liberadas.");
+        if (userId) await routeAfterLogin(userId, nav);
       } else {
-        const { error } = await supabase.auth.signInWithPassword({ email, password });
+        const { data, error } = await supabase.auth.signInWithPassword({ email, password });
         if (error) throw error;
         toast.success("Bem-vindo de volta!");
+        if (data.user) await routeAfterLogin(data.user.id, nav);
       }
-      nav({ to: "/dashboard", replace: true });
     } catch (err: unknown) {
       const msg = err instanceof Error ? err.message : "Erro";
       toast.error(msg);
@@ -81,8 +104,11 @@ function AuthPage() {
         </div>
       </div>
 
-      <div className="flex items-center justify-center p-6">
-        <div className="w-full max-w-sm space-y-6">
+      <div className="relative flex items-center justify-center p-6">
+        <div className="absolute left-4 top-4 z-10">
+          <BackButton fallback="/" label="Voltar para a página inicial" />
+        </div>
+        <div className="w-full max-w-sm space-y-6 animate-fade-in">
           <div className="lg:hidden flex items-center gap-2 text-lg font-semibold">
             <div className="flex h-9 w-9 items-center justify-center rounded-xl gradient-primary text-white">F+</div>
             Foco+

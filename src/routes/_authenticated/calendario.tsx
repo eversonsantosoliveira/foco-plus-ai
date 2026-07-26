@@ -4,6 +4,7 @@ import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/lib/use-auth";
 import { Button } from "@/components/ui/button";
+import { BackButton } from "@/components/back-button";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -55,7 +56,8 @@ function Calendario() {
     <div className="mx-auto max-w-6xl space-y-4">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-semibold tracking-tight">Calendário</h1>
+          <div className="mb-1 flex items-center gap-3"><BackButton fallback="/dashboard" /></div>
+        <h1 className="text-3xl font-semibold tracking-tight">Calendário</h1>
           <p className="text-muted-foreground">Semana de {anchor.toLocaleDateString("pt-BR")}</p>
         </div>
         <div className="flex items-center gap-2">
