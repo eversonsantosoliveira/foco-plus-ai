@@ -1,4 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
+import { BackButton } from "@/components/back-button";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/lib/use-auth";
