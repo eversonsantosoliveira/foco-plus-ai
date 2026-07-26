@@ -14,11 +14,67 @@ export type Database = {
   }
   public: {
     Tables: {
+      events: {
+        Row: {
+          color: string | null
+          created_at: string
+          description: string | null
+          end_at: string
+          id: string
+          source: string
+          start_at: string
+          task_id: string | null
+          title: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          color?: string | null
+          created_at?: string
+          description?: string | null
+          end_at: string
+          id?: string
+          source?: string
+          start_at: string
+          task_id?: string | null
+          title: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          color?: string | null
+          created_at?: string
+          description?: string | null
+          end_at?: string
+          id?: string
+          source?: string
+          start_at?: string
+          task_id?: string | null
+          title?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "events_task_id_fkey"
+            columns: ["task_id"]
+            isOneToOne: false
+            referencedRelation: "tasks"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       goals: {
         Row: {
           created_at: string
           current_value: number
+          description: string | null
+          end_date: string | null
           id: string
+          linked_category: string | null
+          linked_habit_id: string | null
+          period: string
+          start_date: string | null
           target_value: number
           title: string
           unit: string | null
@@ -29,7 +85,13 @@ export type Database = {
         Insert: {
           created_at?: string
           current_value?: number
+          description?: string | null
+          end_date?: string | null
           id?: string
+          linked_category?: string | null
+          linked_habit_id?: string | null
+          period?: string
+          start_date?: string | null
           target_value?: number
           title: string
           unit?: string | null
@@ -40,7 +102,13 @@ export type Database = {
         Update: {
           created_at?: string
           current_value?: number
+          description?: string | null
+          end_date?: string | null
           id?: string
+          linked_category?: string | null
+          linked_habit_id?: string | null
+          period?: string
+          start_date?: string | null
           target_value?: number
           title?: string
           unit?: string | null
@@ -48,7 +116,15 @@ export type Database = {
           user_id?: string
           week_start?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "goals_linked_habit_id_fkey"
+            columns: ["linked_habit_id"]
+            isOneToOne: false
+            referencedRelation: "habits"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       habit_logs: {
         Row: {
@@ -174,10 +250,12 @@ export type Database = {
           fixed_commitments: string | null
           full_name: string | null
           gym_days: number[] | null
+          gym_time: string | null
           habits_text: string | null
           id: string
           is_premium: boolean
           language: string
+          notifications_enabled: boolean
           objectives: string | null
           onboarding_completed: boolean
           premium_until: string | null
@@ -199,10 +277,12 @@ export type Database = {
           fixed_commitments?: string | null
           full_name?: string | null
           gym_days?: number[] | null
+          gym_time?: string | null
           habits_text?: string | null
           id: string
           is_premium?: boolean
           language?: string
+          notifications_enabled?: boolean
           objectives?: string | null
           onboarding_completed?: boolean
           premium_until?: string | null
@@ -224,10 +304,12 @@ export type Database = {
           fixed_commitments?: string | null
           full_name?: string | null
           gym_days?: number[] | null
+          gym_time?: string | null
           habits_text?: string | null
           id?: string
           is_premium?: boolean
           language?: string
+          notifications_enabled?: boolean
           objectives?: string | null
           onboarding_completed?: boolean
           premium_until?: string | null
@@ -253,6 +335,7 @@ export type Database = {
           estimated_minutes: number
           id: string
           is_fixed: boolean
+          position: number
           priority: number
           scheduled_end: string | null
           scheduled_start: string | null
@@ -270,6 +353,7 @@ export type Database = {
           estimated_minutes?: number
           id?: string
           is_fixed?: boolean
+          position?: number
           priority?: number
           scheduled_end?: string | null
           scheduled_start?: string | null
@@ -287,6 +371,7 @@ export type Database = {
           estimated_minutes?: number
           id?: string
           is_fixed?: boolean
+          position?: number
           priority?: number
           scheduled_end?: string | null
           scheduled_start?: string | null

@@ -1,17 +1,43 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
+
+export type ThemePref = "light" | "dark" | "system";
+
+function applyTheme(pref: ThemePref) {
+  const root = document.documentElement;
+  const isDark =
+    pref === "dark" ||
+    (pref === "system" && window.matchMedia("(prefers-color-scheme: dark)").matches);
+  root.classList.toggle("dark", isDark);
+}
 
 export function useTheme() {
-  const [theme, setTheme] = useState<"light" | "dark">(() => {
-    if (typeof window === "undefined") return "light";
-    return (localStorage.getItem("focoplus-theme") as "light" | "dark") || "light";
+  const [pref, setPref] = useState<ThemePref>(() => {
+    if (typeof window === "undefined") return "system";
+    return (localStorage.getItem("focoplus-theme") as ThemePref) || "system";
   });
 
   useEffect(() => {
-    const root = document.documentElement;
-    if (theme === "dark") root.classList.add("dark");
-    else root.classList.remove("dark");
-    localStorage.setItem("focoplus-theme", theme);
-  }, [theme]);
+    applyTheme(pref);
+    localStorage.setItem("focoplus-theme", pref);
+    if (pref === "system") {
+      const mq = window.matchMedia("(prefers-color-scheme: dark)");
+      const handler = () => applyTheme("system");
+      mq.addEventListener("change", handler);
+      return () => mq.removeEventListener("change", handler);
+    }
+  }, [pref]);
 
-  return { theme, setTheme, toggle: () => setTheme((t) => (t === "dark" ? "light" : "dark")) };
+  const theme: "light" | "dark" =
+    pref === "dark"
+      ? "dark"
+      : pref === "light"
+        ? "light"
+        : typeof window !== "undefined" && window.matchMedia("(prefers-color-scheme: dark)").matches
+          ? "dark"
+          : "light";
+
+  const setTheme = useCallback((p: ThemePref | "light" | "dark") => setPref(p as ThemePref), []);
+  const toggle = useCallback(() => setPref((t) => (t === "dark" ? "light" : "dark")), []);
+
+  return { pref, theme, setTheme, toggle };
 }
