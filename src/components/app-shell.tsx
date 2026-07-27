@@ -16,6 +16,8 @@ import {
   LogOut,
   Moon,
   Sun,
+  ChevronRight,
+  ChevronLeft,
 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/lib/use-auth";
