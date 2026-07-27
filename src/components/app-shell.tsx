@@ -1,5 +1,6 @@
 import { Link, useRouterState, useNavigate } from "@tanstack/react-router";
-import { useEffect, type ReactNode } from "react";
+import { useEffect, useState, type ReactNode } from "react";
+import { AnimatePresence, motion } from "framer-motion";
 import { useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 
@@ -15,6 +16,8 @@ import {
   LogOut,
   Moon,
   Sun,
+  ChevronRight,
+  ChevronLeft,
 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/lib/use-auth";
@@ -35,6 +38,12 @@ const NAV = [
   { to: "/configuracoes", label: "Configurações", icon: Settings },
 ] as const;
 
+const MOBILE_NAV_PAGES = [
+  NAV.slice(0, 5),
+  NAV.slice(5, 8),
+] as const;
+
+
 export function AppShell({ children }: { children: ReactNode }) {
   const { user } = useAuth();
   const { data: profile } = useProfile(user?.id);
@@ -42,6 +51,15 @@ export function AppShell({ children }: { children: ReactNode }) {
   const nav = useNavigate();
   const path = useRouterState({ select: (s) => s.location.pathname });
   const qc = useQueryClient();
+  const [mobileNavPage, setMobileNavPage] = useState(0);
+
+  // Sync bottom nav page with current route
+  useEffect(() => {
+    const idx = MOBILE_NAV_PAGES.findIndex((page) =>
+      page.some((n) => path === n.to || path.startsWith(n.to + "/")),
+    );
+    if (idx !== -1) setMobileNavPage(idx);
+  }, [path]);
 
   // Redirect to onboarding if not completed
   useEffect(() => {
@@ -143,25 +161,50 @@ export function AppShell({ children }: { children: ReactNode }) {
           </div>
         </header>
         <main className="flex-1 px-4 py-6 md:px-8 md:py-8">{children}</main>
-        {/* Mobile bottom nav */}
-        <nav className="sticky bottom-0 z-30 flex items-center justify-around border-t border-border bg-background/90 py-2 backdrop-blur md:hidden">
-          {NAV.slice(0, 5).map((n) => {
-            const active = path === n.to;
-            const Icon = n.icon;
-            return (
-              <Link
-                key={n.to}
-                to={n.to}
-                className={cn(
-                  "flex flex-col items-center gap-0.5 rounded-md px-3 py-1.5 text-[10px] font-medium",
-                  active ? "text-primary" : "text-muted-foreground",
-                )}
+        {/* Mobile bottom nav (paged) */}
+        <nav className="sticky bottom-0 z-30 border-t border-border bg-background/90 py-2 backdrop-blur md:hidden">
+          <div className="relative overflow-hidden">
+            <AnimatePresence initial={false} mode="wait">
+              <motion.div
+                key={mobileNavPage}
+                initial={{ x: mobileNavPage === 0 ? -40 : 40, opacity: 0 }}
+                animate={{ x: 0, opacity: 1 }}
+                exit={{ x: mobileNavPage === 0 ? 40 : -40, opacity: 0 }}
+                transition={{ duration: 0.25, ease: [0.32, 0.72, 0, 1] }}
+                className="flex items-center justify-around"
               >
-                <Icon className="h-5 w-5" />
-                {n.label}
-              </Link>
-            );
-          })}
+                {MOBILE_NAV_PAGES[mobileNavPage].map((n) => {
+                  const active = path === n.to || path.startsWith(n.to + "/");
+                  const Icon = n.icon;
+                  return (
+                    <Link
+                      key={n.to}
+                      to={n.to}
+                      className={cn(
+                        "flex min-h-11 min-w-11 flex-col items-center gap-0.5 rounded-md px-3 py-1.5 text-[10px] font-medium",
+                        active ? "text-primary" : "text-muted-foreground",
+                      )}
+                    >
+                      <Icon className="h-5 w-5" />
+                      {n.label}
+                    </Link>
+                  );
+                })}
+                <button
+                  type="button"
+                  onClick={() => setMobileNavPage((p) => (p === 0 ? 1 : 0))}
+                  aria-label={mobileNavPage === 0 ? "Mais opções" : "Voltar"}
+                  className="flex min-h-11 min-w-11 items-center justify-center rounded-md px-3 py-1.5 text-muted-foreground transition-colors hover:text-foreground"
+                >
+                  {mobileNavPage === 0 ? (
+                    <ChevronRight className="h-5 w-5" />
+                  ) : (
+                    <ChevronLeft className="h-5 w-5" />
+                  )}
+                </button>
+              </motion.div>
+            </AnimatePresence>
+          </div>
         </nav>
       </div>
     </div>
