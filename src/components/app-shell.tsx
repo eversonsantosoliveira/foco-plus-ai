@@ -105,9 +105,11 @@ export function AppShell({ children }: { children: ReactNode }) {
     nav({ to: "/auth", replace: true });
   };
 
+  const expired = !!profile && planStatus(profile) === "free";
+
   return (
     <div className="flex min-h-screen bg-background">
-      {/* Sidebar */}
+      <TrialExpiredDialog open={expired} />
       <aside className="hidden w-64 shrink-0 flex-col border-r border-border bg-sidebar px-4 py-6 md:flex">
         <Link to="/dashboard" className="mb-8 flex items-center gap-2 px-2">
           <div className="flex h-9 w-9 items-center justify-center rounded-xl gradient-primary text-white font-bold shadow-glow">
