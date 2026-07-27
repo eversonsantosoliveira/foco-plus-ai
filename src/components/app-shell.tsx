@@ -25,6 +25,8 @@ import { useProfile } from "@/lib/profile";
 import { useTheme } from "@/lib/use-theme";
 import { Button } from "@/components/ui/button";
 import { PlanBadge } from "@/components/plan-badge";
+import { TrialExpiredDialog } from "@/components/trial-expired-dialog";
+import { planStatus } from "@/lib/profile";
 import { cn } from "@/lib/utils";
 
 const NAV = [
