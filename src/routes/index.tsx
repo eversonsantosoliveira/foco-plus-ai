@@ -1,9 +1,14 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
+import { motion } from "framer-motion";
+import { z } from "zod";
 import { Button } from "@/components/ui/button";
-import { Sparkles, Brain, CalendarClock, Zap, Check } from "lucide-react";
+import { Sparkles, Brain, CalendarClock, Zap, Check, Crown, Lock } from "lucide-react";
 import { KIWIFY_CHECKOUT_URL } from "@/lib/billing";
 
+const searchSchema = z.object({ expired: z.string().optional() });
+
 export const Route = createFileRoute("/")({
+  validateSearch: searchSchema,
   head: () => ({
     meta: [
       { title: "Foco+ — Sua semana organizada por IA" },
@@ -16,7 +21,22 @@ export const Route = createFileRoute("/")({
   component: Landing,
 });
 
+const PREMIUM_BENEFITS = [
+  "Organização inteligente com IA",
+  "Planejamento automático da semana",
+  "Reorganização automática das tarefas",
+  "Calendário inteligente",
+  "Hábitos ilimitados",
+  "Metas ilimitadas",
+  "Relatórios completos",
+  "Assistente de produtividade com IA",
+  "Todas as futuras atualizações incluídas",
+];
+
 function Landing() {
+  const { expired } = Route.useSearch();
+  const isExpired = expired === "1";
+
   return (
     <div className="min-h-screen bg-background">
       <header className="sticky top-0 z-30 border-b border-border bg-background/80 backdrop-blur">
@@ -31,6 +51,35 @@ function Landing() {
           </div>
         </div>
       </header>
+
+      {isExpired && (
+        <motion.section
+          initial={{ opacity: 0, y: -8 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.3 }}
+          className="border-b border-primary/20 bg-primary/5"
+        >
+          <div className="mx-auto flex max-w-5xl flex-col items-start gap-4 px-6 py-6 md:flex-row md:items-center md:justify-between">
+            <div className="flex items-start gap-3">
+              <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-primary/10 text-primary">
+                <Lock className="h-5 w-5" />
+              </div>
+              <div>
+                <h2 className="text-base font-semibold">Seu teste gratuito terminou</h2>
+                <p className="mt-0.5 text-sm text-muted-foreground">
+                  Assine o Foco+ Premium para voltar a utilizar todas as funcionalidades.
+                </p>
+              </div>
+            </div>
+            <a href={KIWIFY_CHECKOUT_URL} target="_blank" rel="noreferrer" className="w-full md:w-auto">
+              <Button size="lg" className="h-11 w-full gap-2 md:w-auto">
+                <Crown className="h-4 w-4" />
+                Assinar Foco+ Premium
+              </Button>
+            </a>
+          </div>
+        </motion.section>
+      )}
 
       <section className="relative overflow-hidden">
         <div className="absolute inset-0 -z-10 bg-gradient-to-b from-primary/5 to-transparent" />
@@ -73,7 +122,7 @@ function Landing() {
         </div>
       </section>
 
-      <section className="mx-auto max-w-3xl px-6 pb-24">
+      <section id="premium" className="mx-auto max-w-3xl px-6 pb-24">
         <div className="card-elevated overflow-hidden">
           <div className="gradient-primary p-8 text-white">
             <h2 className="text-2xl font-semibold">Foco+ Premium</h2>
@@ -84,19 +133,16 @@ function Landing() {
             </div>
           </div>
           <div className="p-8 space-y-3">
-            {[
-              "Organização automática da semana pela IA",
-              "Reorganização inteligente de tarefas",
-              "Hábitos, metas e relatórios completos",
-              "Notificações inteligentes",
-              "Dark mode e sincronização em tempo real",
-            ].map((i) => (
+            {PREMIUM_BENEFITS.map((i) => (
               <div key={i} className="flex items-center gap-3 text-sm">
                 <Check className="h-4 w-4 text-success" /> {i}
               </div>
             ))}
             <a href={KIWIFY_CHECKOUT_URL} target="_blank" rel="noreferrer" className="block">
-              <Button className="mt-4 w-full h-12">Assinar Premium</Button>
+              <Button className="mt-4 h-12 w-full gap-2">
+                <Crown className="h-4 w-4" />
+                Assinar Foco+ Premium
+              </Button>
             </a>
           </div>
         </div>
