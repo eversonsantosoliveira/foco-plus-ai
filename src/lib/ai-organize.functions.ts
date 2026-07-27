@@ -1,6 +1,24 @@
 import { createServerFn } from "@tanstack/react-start";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import { z } from "zod";
+import type { SupabaseClient } from "@supabase/supabase-js";
+
+async function assertActiveSubscription(supabase: SupabaseClient, userId: string) {
+  const { data: profile } = await supabase
+    .from("profiles")
+    .select("is_premium, premium_until, trial_ends_at")
+    .eq("id", userId)
+    .maybeSingle();
+  const now = Date.now();
+  const premiumActive =
+    !!profile?.is_premium &&
+    (!profile.premium_until || new Date(profile.premium_until).getTime() > now);
+  const trialActive =
+    !!profile?.trial_ends_at && new Date(profile.trial_ends_at).getTime() > now;
+  if (!premiumActive && !trialActive) {
+    throw new Error("SUBSCRIPTION_EXPIRED: Assine o Foco+ Premium para continuar.");
+  }
+}
 
 const InputSchema = z.object({
   weekStartISO: z.string(),
@@ -17,6 +35,7 @@ export const organizeWeek = createServerFn({ method: "POST" })
   .inputValidator((d: unknown) => InputSchema.parse(d))
   .handler(async ({ data, context }) => {
     const { supabase, userId } = context;
+    await assertActiveSubscription(supabase, userId);
     const apiKey = process.env.LOVABLE_API_KEY;
     if (!apiKey) throw new Error("LOVABLE_API_KEY missing");
 
@@ -115,6 +134,7 @@ export const suggestReschedule = createServerFn({ method: "POST" })
   .inputValidator((d: unknown) => z.object({ taskId: z.string().uuid() }).parse(d))
   .handler(async ({ data, context }) => {
     const { supabase, userId } = context;
+    await assertActiveSubscription(supabase, userId);
     const apiKey = process.env.LOVABLE_API_KEY;
     if (!apiKey) throw new Error("LOVABLE_API_KEY missing");
     const { data: task } = await supabase
