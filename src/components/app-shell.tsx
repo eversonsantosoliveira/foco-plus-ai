@@ -38,6 +38,12 @@ const NAV = [
   { to: "/configuracoes", label: "Configurações", icon: Settings },
 ] as const;
 
+const MOBILE_NAV_PAGES = [
+  NAV.slice(0, 5),
+  NAV.slice(5, 8),
+] as const;
+
+
 export function AppShell({ children }: { children: ReactNode }) {
   const { user } = useAuth();
   const { data: profile } = useProfile(user?.id);
