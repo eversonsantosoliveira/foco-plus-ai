@@ -51,6 +51,15 @@ export function AppShell({ children }: { children: ReactNode }) {
   const nav = useNavigate();
   const path = useRouterState({ select: (s) => s.location.pathname });
   const qc = useQueryClient();
+  const [mobileNavPage, setMobileNavPage] = useState(0);
+
+  // Sync bottom nav page with current route
+  useEffect(() => {
+    const idx = MOBILE_NAV_PAGES.findIndex((page) =>
+      page.some((n) => path === n.to || path.startsWith(n.to + "/")),
+    );
+    if (idx !== -1) setMobileNavPage(idx);
+  }, [path]);
 
   // Redirect to onboarding if not completed
   useEffect(() => {
