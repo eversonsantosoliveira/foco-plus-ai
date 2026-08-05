@@ -9,6 +9,8 @@ import {
 } from "@tanstack/react-router";
 import { useEffect, type ReactNode } from "react";
 import { Toaster } from "@/components/ui/sonner";
+import { InstallPrompt } from "@/components/install-prompt";
+
 
 import appCss from "../styles.css?url";
 import { reportLovableError } from "../lib/lovable-error-reporting";
@@ -78,23 +80,37 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
   head: () => ({
     meta: [
       { charSet: "utf-8" },
-      { name: "viewport", content: "width=device-width, initial-scale=1" },
+      {
+        name: "viewport",
+        content:
+          "width=device-width, initial-scale=1, maximum-scale=5, viewport-fit=cover",
+      },
       { title: "Foco+ — Sua semana organizada por IA" },
       { name: "description", content: "Assistente de produtividade com Inteligência Artificial que elimina a procrastinação. A IA organiza sua semana inteira automaticamente." },
       { name: "author", content: "Foco+" },
       { property: "og:title", content: "Foco+ — Sua semana organizada por IA" },
       { property: "og:description", content: "A IA que organiza sua semana e vence a procrastinação." },
       { property: "og:type", content: "website" },
+      { property: "og:site_name", content: "Foco+" },
       { name: "twitter:card", content: "summary_large_image" },
+      { name: "theme-color", content: "#2563EB" },
+      { name: "application-name", content: "Foco+" },
+      { name: "mobile-web-app-capable", content: "yes" },
+      { name: "apple-mobile-web-app-capable", content: "yes" },
+      { name: "apple-mobile-web-app-status-bar-style", content: "black-translucent" },
+      { name: "apple-mobile-web-app-title", content: "Foco+" },
     ],
     links: [
       {
         rel: "stylesheet",
         href: appCss,
       },
-      { rel: "icon", href: "/favicon.ico", type: "image/x-icon" },
+      { rel: "manifest", href: "/manifest.webmanifest" },
+      { rel: "icon", type: "image/png", href: "/favicon.png" },
+      { rel: "apple-touch-icon", sizes: "180x180", href: "/apple-touch-icon.png" },
     ],
   }),
+
   shellComponent: RootShell,
   component: RootComponent,
   notFoundComponent: NotFoundComponent,
@@ -123,6 +139,8 @@ function RootComponent() {
       {/* Required: nested routes render here. Removing <Outlet /> breaks all child routes. */}
       <Outlet />
       <Toaster richColors position="top-center" />
+      <InstallPrompt />
+
     </QueryClientProvider>
   );
 }
