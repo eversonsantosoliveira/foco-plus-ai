@@ -4,7 +4,6 @@ import { z } from "zod";
 import { Button } from "@/components/ui/button";
 import { Sparkles, Brain, CalendarClock, Zap, Crown, Lock } from "lucide-react";
 import { KIWIFY_CHECKOUT_URL } from "@/lib/billing";
-import { PlanSummaryCard } from "@/components/plan-summary-card";
 
 const searchSchema = z.object({ expired: z.string().optional() });
 
@@ -112,8 +111,21 @@ function Landing() {
         </div>
       </section>
 
-      <section id="premium" className="mx-auto max-w-2xl px-6 pb-24">
-        <PlanSummaryCard />
+      <section id="premium" className="mx-auto max-w-3xl px-6 pb-24">
+        <div className="card-elevated overflow-hidden">
+          <div className="gradient-primary p-8 text-white">
+            <h2 className="text-2xl font-semibold">Foco+ Premium</h2>
+            <p className="mt-1 text-white/80">Acesso total à IA e todos os recursos.</p>
+          </div>
+          <div className="p-6 sm:p-8">
+            <a href={KIWIFY_CHECKOUT_URL} target="_blank" rel="noreferrer" className="block">
+              <Button className="h-12 w-full gap-2">
+                <Crown className="h-4 w-4" />
+                Assinar Foco+ Premium
+              </Button>
+            </a>
+          </div>
+        </div>
       </section>
 
       <footer className="border-t border-border py-8 text-center text-sm text-muted-foreground">
