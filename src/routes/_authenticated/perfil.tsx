@@ -1,17 +1,17 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useRef, useState } from "react";
 import { useAuth } from "@/lib/use-auth";
-import { useProfile, planStatus, trialRemainingMs } from "@/lib/profile";
+import { useProfile, planStatus } from "@/lib/profile";
 import { supabase } from "@/integrations/supabase/client";
 import { useQueryClient } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { BackButton } from "@/components/back-button";
+import { PlanSummaryCard } from "@/components/plan-summary-card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Switch } from "@/components/ui/switch";
-import { KIWIFY_CHECKOUT_URL, PREMIUM_PRICE_LABEL } from "@/lib/billing";
-import { Crown, Check, Upload } from "lucide-react";
+import { Upload } from "lucide-react";
 import { toast } from "sonner";
 
 export const Route = createFileRoute("/_authenticated/perfil")({
@@ -27,9 +27,7 @@ function Perfil() {
   const qc = useQueryClient();
 
   const status = planStatus(profile);
-  const ms = trialRemainingMs(profile);
-  const h = Math.floor(ms / 3600_000);
-  const m = Math.floor((ms % 3600_000) / 60_000);
+
 
   const [form, setForm] = useState({
     full_name: "", avatar_url: "", wake_time: "07:00", sleep_time: "23:00",
@@ -134,25 +132,16 @@ function Perfil() {
       </div>
 
       {/* Plano */}
-      <div className="card-elevated overflow-hidden">
-        <div className="gradient-primary p-6 text-white">
-          <div className="flex items-center gap-2 text-sm opacity-90"><Crown className="h-4 w-4" /> Seu plano</div>
-          <h3 className="mt-1 text-2xl font-semibold">
-            {status === "premium" ? "Foco+ Premium" : status === "trial" ? "Teste Grátis" : "Gratuito"}
-          </h3>
-          {status === "trial" && <p className="mt-1 text-sm opacity-80">{ms > 0 ? `${h}h ${m}m restantes` : "Teste expirado"}</p>}
-          {status === "premium" && profile?.premium_until && <p className="mt-1 text-sm opacity-80">Ativo até {new Date(profile.premium_until).toLocaleDateString("pt-BR")}</p>}
-          {profile?.created_at && <p className="mt-1 text-xs opacity-70">Conta desde {new Date(profile.created_at).toLocaleDateString("pt-BR")}</p>}
-        </div>
-        <div className="space-y-3 p-6">
-          {["IA organiza sua semana", "Reorganização automática", "Notificações inteligentes", "Hábitos, metas e relatórios"].map((f) => (
-            <div key={f} className="flex items-center gap-2 text-sm"><Check className="h-4 w-4 text-success" /> {f}</div>
-          ))}
-          <div className="pt-2 text-sm font-semibold">{PREMIUM_PRICE_LABEL}</div>
-          <a href={KIWIFY_CHECKOUT_URL} target="_blank" rel="noreferrer" className="block">
-            <Button className="w-full">{status === "premium" ? "Gerenciar assinatura" : "Assinar Premium"}</Button>
-          </a>
-        </div>
+      <div className="space-y-2">
+        <PlanSummaryCard />
+        {profile?.created_at && (
+          <p className="text-xs text-muted-foreground">
+            Conta desde {new Date(profile.created_at).toLocaleDateString("pt-BR")}
+            {status === "premium" && profile?.premium_until
+              ? ` · Assinatura ativa até ${new Date(profile.premium_until).toLocaleDateString("pt-BR")}`
+              : ""}
+          </p>
+        )}
       </div>
 
       {/* Rotina */}
